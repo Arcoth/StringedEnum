@@ -7,15 +7,13 @@
 
 #include <cstring>
 
-namespace BasicEnumAlgos { namespace detail {
+namespace BasicEnumAlgos {
 	template <typename T>
 	constexpr bool continuous( T const* ptr, std::size_t len, bool c = true )
 	{
 		return len == 1? c : information(ptr+1, len-1, c && ptr[0] + 1 == ptr[1] );
 	}
-} }
 
-namespace BasicEnumAlgos {
 	template <char const* const* first, std::size_t len, typename underlying_type, underlying_type const* values>
 	std::pair<underlying_type, bool> fromString( char const* str )
 	{
@@ -78,8 +76,6 @@ namespace BasicEnumAlgos {
                   BOOST_PP_ENUM(BOOST_PP_SEQ_SIZE(seq), INDEX_MAP, ((underlying_type) -1, seq))                                         \
             };                                                                                                                          \
                                                                                                                                         \
-            constexpr auto continuous = BasicEnumAlgos::detail::continuous(values, enum_size);                                          \
-                                                                                                                                        \
             std::pair<enum_type, bool> fromString( char const* str )                                                                    \
             {                                                                                                                           \
                   auto pair = BasicEnumAlgos::fromString<strings, enum_size, underlying_type, values>(str);                             \
@@ -97,7 +93,7 @@ namespace BasicEnumAlgos {
                                                                                                                                         \
             char const* toString( enum_type n )                                                                                         \
             {                                                                                                                           \
-                  if (continuous)                                                                                                       \
+                  if (BasicEnumAlgos::continuous(values, enum_size))                                                                                                       \
                   {                                                                                                                     \
                         auto val = static_cast<underlying_type>(n);                                                                     \
                         if (val - values[0] >= enum_size)                                                                               \
