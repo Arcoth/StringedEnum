@@ -7,35 +7,25 @@
 
 #include <cstring>
 
-namespace EnumDefaults
-{
-namespace detail
-{
-    struct enum_info
-    {
-        bool increasing;
-        bool continuous;
-    };
+namespace BasicEnumAlgos { namespace detail {
+	template <typename T>
+	constexpr bool continuous( T const* ptr, std::size_t len, bool c = true )
+	{
+		return len == 1? c : information(ptr+1, len-1, c && ptr[0] + 1 == ptr[1] );
+	}
+} }
 
-    template <typename T>
-    constexpr enum_info information( T const* ptr, std::size_t len, bool increasing = true, bool continuous = true )
-    {
-        return len == 1? enum_info{increasing, continuous} : information(ptr+1, len-1, increasing && ptr[0] < ptr[1], continuous && ptr[0] + 1 == ptr[1] );
-    }
+namespace BasicEnumAlgos {
+	template <char const* const* first, std::size_t len, typename underlying_type, underlying_type const* values>
+	std::pair<underlying_type, bool> fromString( char const* str )
+	{
+		auto i = std::find_if(first, first + len, [str] (char const* arg) {return std::strcmp(arg, str) == 0;});
 
-    template <typename T> struct identity {using type = T;};
-}
+		if (i == first + len)
+			return {values[0], false};
 
-    template <char const* const* first, std::size_t len, typename underlying_type, underlying_type const* values>
-    std::pair<underlying_type, bool> fromString( char const* str )
-    {
-        auto i = std::find_if(first, first + len, [str] (char const* arg) {return std::strcmp(arg, str) == 0;});
-
-        if (i == first + len)
-            return {values[0], false};
-
-        return {values[i - first], true};
-    }
+		return {values[i - first], true};
+	}
 }
 
 #include <boost/preprocessor/cat.hpp>
@@ -88,11 +78,11 @@ namespace detail
                   BOOST_PP_ENUM(BOOST_PP_SEQ_SIZE(seq), INDEX_MAP, ((underlying_type) -1, seq))                                         \
             };                                                                                                                          \
                                                                                                                                         \
-            constexpr auto info = EnumDefaults::detail::information(values, enum_size);                                                 \
+            constexpr auto continuous = BasicEnumAlgos::detail::continuous(values, enum_size);                                          \
                                                                                                                                         \
             std::pair<enum_type, bool> fromString( char const* str )                                                                    \
             {                                                                                                                           \
-                  auto pair = EnumDefaults::fromString<strings, enum_size, underlying_type, values>(str);                               \
+                  auto pair = BasicEnumAlgos::fromString<strings, enum_size, underlying_type, values>(str);                             \
                   return {static_cast<enum_type>(pair.first), pair.second};                                                             \
             }                                                                                                                           \
                                                                                                                                         \
@@ -107,7 +97,7 @@ namespace detail
                                                                                                                                         \
             char const* toString( enum_type n )                                                                                         \
             {                                                                                                                           \
-                  if (info.continuous)                                                                                                  \
+                  if (continuous)                                                                                                       \
                   {                                                                                                                     \
                         auto val = static_cast<underlying_type>(n);                                                                     \
                         if (val - values[0] >= enum_size)                                                                               \
