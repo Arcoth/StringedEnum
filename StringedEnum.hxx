@@ -11,7 +11,7 @@ namespace BasicEnumAlgos {
 	template <typename T>
 	constexpr bool continuous( T const* ptr, std::size_t len, bool c = true )
 	{
-		return len == 1? c : information(ptr+1, len-1, c && ptr[0] + 1 == ptr[1] );
+		return len == 1? c : continuous(ptr+1, len-1, c && ptr[0] + 1 == ptr[1] );
 	}
 
 	template <char const* const* first, std::size_t len, typename underlying_type, underlying_type const* values>
