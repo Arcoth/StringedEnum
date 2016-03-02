@@ -14,3 +14,11 @@ This library provides macros that define an enumeration, and alongside with it, 
     )
 
 Note that `MyEnumInfo` is the namespace where auxiliary functions will be defined in; the enumeration itself will be defined in the same scope as the macro invocation. If there are any commas in the *enum-base* (the type specified after the colon), they must be surrounded by parentheses, otherwise use a typedef.
+
+Provided are:
+
+ - `enum_size`: The number of enumerators.
+ - `strings`: An array of `enum_size` `char const*`s, the names of the enumerators.
+ - `values`: The underlying value of each enumerator.
+ - `fromString`: Obtain an enumerator from a `string`. Note that this lookup could be sped up by using `Constainer`'s `flat_map`.
+ -  `toString`: Convert an enumerator to a string. This is either done via a `switch` statement or a lookup table, depending on the continuity of the values.
