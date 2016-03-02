@@ -13,7 +13,8 @@ STRING_ENUM
 
 int main()
 {
-	std::cout << MyEnumInfo::toString( MyEnumInfo::fromString("Enumerator1").first ) << '\n'
-	          << MyEnumInfo::toString( MyEnumInfo::fromString("Enumerator2").first ) << '\n'
-	          << (int)MyEnumInfo::fromString("Enumerator3").first ;
+	constexpr auto s1 = MyEnumInfo::toString( MyEnumInfo::fromString("Enumerator1").first ),
+	               s2 = MyEnumInfo::toString( MyEnumInfo::fromString("Enumerator2").first );
+    constexpr auto i = MyEnumInfo::fromString("Enumerator3").first;
+	std::cout << s1 << '\n' << s2 << '\n' << (int)i;
 }

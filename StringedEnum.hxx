@@ -9,20 +9,23 @@
 
 namespace BasicEnumAlgos {
 	template <typename T>
-	constexpr bool continuous( T const* ptr, std::size_t len, bool c = true )
-	{
+	constexpr bool continuous( T const* ptr, std::size_t len, bool c = true ) {
 		return len == 1? c : continuous(ptr+1, len-1, c && ptr[0] + 1 == ptr[1] );
 	}
 
+	constexpr bool equal(char const* l, char const* r) {
+		for (; *l != '\0'; ++r)
+			if (*l++ != *r)
+				return false;
+		return *r == '\0';
+	}
+
 	template <char const* const* first, std::size_t len, typename underlying_type, underlying_type const* values>
-	std::pair<underlying_type, bool> fromString( char const* str )
-	{
-		auto i = std::find_if(first, first + len, [str] (char const* arg) {return std::strcmp(arg, str) == 0;});
-
-		if (i == first + len)
-			return {values[0], false};
-
-		return {values[i - first], true};
+	constexpr std::pair<underlying_type, bool> fromString( char const* str ) {
+		for (std::size_t i = 0; i < len; ++i)
+			if (equal(first[i], str))
+				return {values[i], true};
+		return {values[0], false};
 	}
 }
 
@@ -76,13 +79,13 @@ namespace BasicEnumAlgos {
                   BOOST_PP_ENUM(BOOST_PP_SEQ_SIZE(seq), INDEX_MAP, ((underlying_type) -1, seq))                                         \
             };                                                                                                                          \
                                                                                                                                         \
-            std::pair<enum_type, bool> fromString( char const* str )                                                                    \
+            constexpr std::pair<enum_type, bool> fromString( char const* str )                                                          \
             {                                                                                                                           \
                   auto pair = BasicEnumAlgos::fromString<strings, enum_size, underlying_type, values>(str);                             \
                   return {static_cast<enum_type>(pair.first), pair.second};                                                             \
             }                                                                                                                           \
                                                                                                                                         \
-            char const* toStringSwitch( enum_type n )                                                                                   \
+            constexpr char const* toStringSwitch( enum_type n )                                                                         \
             {                                                                                                                           \
                   switch (n)                                                                                                            \
                   {                                                                                                                     \
@@ -91,9 +94,9 @@ namespace BasicEnumAlgos {
                   return nullptr;                                                                                                       \
             }                                                                                                                           \
                                                                                                                                         \
-            char const* toString( enum_type n )                                                                                         \
+            constexpr char const* toString( enum_type n )                                                                               \
             {                                                                                                                           \
-                  if (BasicEnumAlgos::continuous(values, enum_size))                                                                                                       \
+                  if (BasicEnumAlgos::continuous(values, enum_size))                                                                    \
                   {                                                                                                                     \
                         auto val = static_cast<underlying_type>(n);                                                                     \
                         if (val - values[0] >= enum_size)                                                                               \
